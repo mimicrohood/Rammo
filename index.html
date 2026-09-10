@@ -1,0 +1,696 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>rammo · every exploit becomes immunity</title>
+<link rel="icon" type="image/png" href="Rammo.png" />
+<link rel="apple-touch-icon" href="Rammo.png" />
+<style>
+  :root {
+    --bg: #16140f;
+    --surface: #1f1d18;
+    --surface-2: #26241e;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.18);
+    --text: #ededea;
+    --text-2: #a8a69e;
+    --text-3: #6c6a64;
+    --success: #5dcaa5;
+    --success-bg: rgba(93,202,165,0.12);
+    --danger: #f09595;
+    --danger-bg: rgba(240,149,149,0.12);
+    --info-bg: rgba(240,199,117,0.08);
+    --info-border: rgba(240,199,117,0.3);
+    --info-text: #e8c478;
+    --accent: #ededea;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --serif: "EB Garamond", Georgia, "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; border-bottom: 0.5px solid var(--border-strong); cursor: pointer; }
+  a:hover { color: var(--text); border-bottom-color: var(--text); }
+
+  .banner {
+    background: var(--info-bg);
+    border-bottom: 0.5px solid var(--info-border);
+    color: var(--info-text);
+    text-align: center;
+    font-size: 13px;
+    padding: 8px 1rem;
+  }
+  .ca-banner {
+    background: var(--success-bg);
+    border-bottom: 0.5px solid var(--success);
+    color: var(--success);
+    text-align: center;
+    font-size: 13px;
+    padding: 10px 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .ca-banner .ca-label { color: var(--success); font-weight: 500; }
+  .ca-banner code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: rgba(0,0,0,0.25);
+    padding: 3px 8px;
+    border-radius: 3px;
+    word-break: break-all;
+    color: var(--text);
+  }
+  .ca-banner button {
+    background: transparent;
+    border: 0.5px solid var(--success);
+    color: var(--success);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  .ca-banner button:hover { background: var(--success); color: var(--bg); }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    max-width: 1180px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    padding: 2rem 1.25rem;
+    border-right: 0.5px solid var(--border);
+    font-size: 14px;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+  .logo {
+    font-family: var(--serif);
+    font-size: 24px;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    font-style: italic;
+    letter-spacing: -0.02em;
+  }
+  .logo-img {
+    height: 32px;
+    width: 32px;
+    border-radius: 6px;
+    object-fit: cover;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .nav-section { margin-bottom: 1.25rem; }
+  .nav-section h4 {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--text-3);
+    margin: 0 0 6px;
+    font-weight: 500;
+  }
+  .nav-section ul { list-style: none; padding: 0; margin: 0; }
+  .nav-section li a {
+    display: block;
+    padding: 4px 0;
+    color: var(--text-2);
+    border: none;
+  }
+  .nav-section li a:hover { color: var(--text); }
+  .nav-section li a.active { color: var(--text); font-weight: 500; }
+  .wallet {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--border);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .wallet code {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-2);
+    word-break: break-all;
+    line-height: 1.4;
+  }
+  .wallet-link { display: block; border: none; }
+  .wallet-link:hover code { color: var(--text); }
+  .social-link {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 12px;
+    color: var(--text-3);
+    border: none;
+  }
+  .social-link:hover { color: var(--text); }
+
+  .main { padding: 2rem 2.5rem 4rem; min-width: 0; }
+  .topbar { font-size: 13px; color: var(--text-2); margin-bottom: 0.5rem; }
+  h1 {
+    font-size: 30px;
+    font-weight: 500;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 2.5rem 0 1rem;
+    letter-spacing: -0.005em;
+  }
+  h3 { font-size: 16px; font-weight: 500; margin: 1.5rem 0 0.5rem; }
+  .subtitle { color: var(--text-2); font-size: 14px; margin-bottom: 2rem; }
+  .subtitle.quote {
+    font-style: italic;
+    line-height: 1.7;
+    max-width: 640px;
+    padding: 14px 0 14px 18px;
+    border-left: 2px solid var(--border-strong);
+    color: var(--text-2);
+    font-size: 14px;
+    font-family: var(--serif);
+  }
+  .quote-author {
+    display: block;
+    font-style: normal;
+    margin-top: 8px;
+    color: var(--text-3);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    font-family: var(--sans);
+  }
+
+  .progress-wrap { margin-bottom: 2.5rem; }
+  .progress-meta {
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: var(--text-2);
+    margin-bottom: 6px;
+  }
+  .progress-bar { height: 6px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); }
+
+  .prose { max-width: 720px; font-size: 15px; }
+  .prose p { margin: 0 0 1.1rem; line-height: 1.85; }
+  .prose strong { font-weight: 500; }
+  .prose .divider { border: 0; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
+  .prose .callout {
+    background: var(--info-bg);
+    border-left: 3px solid var(--info-border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: 14px;
+    margin: 1.5rem 0;
+  }
+  .prose .callout-label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--info-text);
+    margin-bottom: 4px;
+  }
+
+  .essay { max-width: 680px; font-family: var(--serif); font-size: 17px; line-height: 1.85; color: var(--text); }
+  .essay h2 {
+    font-family: var(--sans);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    margin: 3rem 0 1.25rem;
+  }
+  .essay p { margin: 0 0 1.25rem; text-align: justify; }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+  .metric { background: var(--surface-2); border-radius: 8px; padding: 1rem; }
+  .metric-label { font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+  .metric-value { font-size: 24px; font-weight: 500; line-height: 1.1; font-family: var(--mono); }
+  .metric-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; font-family: var(--mono); }
+  .metric-sub.up { color: var(--success); }
+  .metric-sub.down { color: var(--danger); }
+
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .card-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .card-title { font-size: 14px; font-weight: 500; }
+  .card-meta { font-size: 12px; color: var(--text-3); font-family: var(--mono); }
+  .chart-wrap svg { display: block; width: 100%; height: 220px; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    margin-bottom: 1.25rem;
+  }
+  .three-col {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+  .qa-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 1.5rem;
+  }
+  .qa-item {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 1.5rem 1.75rem;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+  }
+  .qa-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--info-text);
+    letter-spacing: 0.05em;
+    padding-top: 2px;
+  }
+  .qa-item h3 {
+    font-size: 17px;
+    font-weight: 500;
+    margin: 0 0 0.75rem;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .qa-item p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-2);
+    margin: 0;
+  }
+  .qa-item p strong { color: var(--text); font-weight: 500; }
+  .rule-block {
+    margin: 2.75rem 0 2.25rem;
+    text-align: center;
+  }
+  .rule-block .rule-label {
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .rule-block .rule-formula {
+    display: inline-block;
+    font-family: var(--serif);
+    font-size: 28px;
+    padding: 1.5rem 2.5rem;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .hero-banner {
+    width: 100%;
+    height: 140px;
+    background: var(--surface-2);
+    border-radius: 12px;
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+  }
+  .hero-banner svg { width: 100%; height: 100%; display: block; }
+
+  pre.code {
+    background: var(--surface-2);
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text);
+  }
+  pre.code .c { color: var(--text-3); font-style: italic; }
+  pre.code .k { color: var(--info-text); }
+  pre.code .s { color: #c9b89a; }
+
+  .surprise-row {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr) 100px 100px;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-top: 0.5px solid var(--border);
+    font-size: 13px;
+    align-items: baseline;
+  }
+  .surprise-row:first-of-type { border-top: 0; }
+  .surprise-date { color: var(--text-3); font-size: 12px; font-family: var(--mono); }
+  .surprise-body { color: var(--text-2); }
+  .surprise-prior, .surprise-post { font-family: var(--mono); font-size: 12px; text-align: right; }
+  .surprise-prior { color: var(--text-3); }
+  .surprise-post { color: var(--success); }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+    @media (max-width: 820px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; max-height: none; border-right: none; border-bottom: 0.5px solid var(--border); padding: 1.25rem; }
+    .main { padding: 1.5rem 1.25rem 3rem; }
+    .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .two-col { grid-template-columns: 1fr; }
+    .three-col { grid-template-columns: 1fr; }
+    .surprise-row { grid-template-columns: 1fr; gap: 4px; }
+    h1 { font-size: 24px; }
+  }
+</style>
+<style>
+:root{--success:#b7f34a;--success-bg:rgba(183,243,74,.10);--info-text:#b7f34a;--info-border:rgba(183,243,74,.28);--info-bg:rgba(183,243,74,.06)}
+.logo-img{border-radius:6px}.ca-banner{background:#10170d}.rammo-loop .metric{display:flex;flex-direction:column;align-items:flex-start;gap:7px}.rammo-loop .metric-value{padding:0}
+@media(max-width:900px){.rammo-loop{grid-template-columns:repeat(2,1fr)!important}}
+</style></head>
+<body>
+
+<div class="ca-banner">
+  <span class="ca-label">$RAMMO contract (Robinhood Chain):</span>
+  <code id="ca-code">TBA</code>
+</div>
+
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <a class="logo" data-nav="index"><img src="Rammo.png" alt="rammo" class="logo-img" />rammo</a>
+    <div class="nav-section">
+      <h4>Main</h4>
+      <ul>
+        <li><a data-nav="index" class="active">Overview</a></li>
+        <li><a data-nav="mind">Threats</a></li>
+        <li><a data-nav="theorem">Foundations</a></li>
+        <li><a data-nav="surprises">Root Registry</a></li>
+        <li><a data-nav="selfcorrect">Proof of Repair</a></li>
+      </ul>
+    </div>
+    <div class="nav-section">
+      <h4>Archive</h4>
+      <ul>
+        <li><a data-nav="deployment">Deployment</a></li>
+        <li><a data-nav="source">Protocol Spec</a></li>
+        <li><a data-nav="handoff">Evolution</a></li>
+      </ul>
+    </div>
+    <div class="wallet">
+      <a href="https://x.com/rammonhood" target="_blank" rel="noopener" class="social-link" aria-label="Rammo on X">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <a data-nav="source" class="social-link" aria-label="Source code" style="margin-left: 10px; cursor: pointer;" title="Source code">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <section class="page active" data-page="index">
+      <div class="topbar">rammo · white-hat protocol · launching on pons</div>
+      <h1>Every exploit becomes immunity</h1>
+      <div class="subtitle quote">
+        "Wild by design. White-hat by principle."
+        <span class="quote-author">— the rammo doctrine</span>
+      </div>
+
+      <div class="card" style="padding:1.5rem;margin-bottom:1rem;">
+        <div class="card-head">
+          <div><div class="card-title">the immunity loop</div><div class="card-meta">observe → fork → exploit → prove → patch → upgrade → remember</div></div>
+          <div class="card-meta"><span class="status-dot"></span> concept phase</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:1.5rem;" class="rammo-loop">
+          <div class="metric"><span class="metric-label">01</span><span class="metric-value" style="font-size:13px;">observe</span></div>
+          <div class="metric"><span class="metric-label">02</span><span class="metric-value" style="font-size:13px;">fork</span></div>
+          <div class="metric"><span class="metric-label">03</span><span class="metric-value" style="font-size:13px;">exploit</span></div>
+          <div class="metric"><span class="metric-label">04</span><span class="metric-value" style="font-size:13px;">prove</span></div>
+          <div class="metric"><span class="metric-label">05</span><span class="metric-value" style="font-size:13px;">patch</span></div>
+          <div class="metric"><span class="metric-label">06</span><span class="metric-value" style="font-size:13px;">upgrade</span></div>
+          <div class="metric"><span class="metric-label">07</span><span class="metric-value" style="font-size:13px;">remember</span></div>
+        </div>
+      </div>
+
+      <div class="three-col">
+        <div class="card"><div class="card-head"><div class="card-title">what it watches</div><div class="card-meta">surface</div></div><div style="padding:1rem 0;color:var(--text-2);font-size:13px;">permissions<br>oracles<br>liquidity<br>composability</div></div>
+        <div class="card"><div class="card-head"><div class="card-title">where it tests</div><div class="card-meta">fork lab</div></div><div style="padding:1rem 0;color:var(--text-2);font-size:13px;">pinned state<br>isolated execution<br>replayable proof<br>zero live funds</div></div>
+        <div class="card"><div class="card-head"><div class="card-title">what it creates</div><div class="card-meta">immunity</div></div><div style="padding:1rem 0;color:var(--text-2);font-size:13px;">verified repairs<br>public roots<br>version lineage<br>reusable defense</div></div>
+      </div>
+
+      <div class="prose">
+        <p>Rammo is a <strong>self-evolving white-hat protocol</strong> for tokenized markets on Robinhood Chain. It watches how assets, contracts, prices and liquidity interact, then moves suspicious behavior into an isolated state fork before real value is exposed.</p>
+        <p>Traditional audits are snapshots. Onchain markets are alive. A contract can be safe alone and become dangerous the moment it is connected to a vault, a price feed or a lending market. Rammo treats security as a continuous process rather than a certificate.</p>
+        <p>It does not promise that vulnerabilities will disappear. It turns each verified vulnerability into evidence, each repair into memory, and each memory into a stronger next generation. <strong>The vulnerability is not hidden. It becomes the protocol's next immunity.</strong></p>
+        <div class="callout"><span class="callout-label">the rule</span>Rammo forks the threat before the threat forks the market.</div>
+        <h2>Why Robinhood Chain</h2>
+        <p>Tokenized equities, ETFs and other real-world assets bring familiar value into programmable markets. That composability creates opportunity, but it also means a failure can travel across assets and protocols. Rammo is designed as the independent immune layer for that financial graph.</p>
+        <p>Agents accelerate observation and mutation testing. They do not receive blind authority. A repair becomes trusted only when its exploit and invariants can be replayed and independently verified.</p>
+      </div>      <div class="prose">
+        <h2>A living security organism</h2>
+        <p>Rammo is not a badge placed on a contract after a one-time review. It is meant to remain present as markets change. New assets, integrations, governance actions and liquidity conditions expand the attack surface every day. The protocol follows that surface and keeps a public memory of what it learns.</p>
+        <p>The untamed black hair represents continuous mutation: Rammo never settles into a final form. The white-hat identity defines the boundary: discovery without extraction, simulation without live damage, disclosure before spectacle, and proof before trust. <strong>Rammo learns how an attacker thinks without becoming one.</strong></p>
+
+        <h2>From signal to immunity</h2>
+        <p>A suspicious signal begins as an observation, not an accusation. Rammo pins the relevant chain state, creates a deterministic fork and asks whether the behavior can be reproduced. If it cannot, the hypothesis is rejected and preserved as a failed path. If it can, the finding enters responsible disclosure and repair testing.</p>
+        <p>A proposed repair must do two things at once: block the adversarial path and preserve valid market behavior. Only after both conditions survive repeated mutation tests can the repair be attached to a Root record and published as an opt-in defense.</p>
+
+        <h2>The token</h2>
+        <p><strong>$RAMMO is planned to launch on Pons on Robinhood Chain.</strong> Before launch, the contract address remains TBA. The address shown in the banner above and the project's X account are the canonical places to verify it when it exists. Names and tickers can be copied; the address is the identity.</p>
+        <p>The token is intended to coordinate the people and agents that make the immunity loop useful: observers who surface risk, researchers who reproduce it, builders who repair it, and independent reviewers who verify the result. Final mechanics will be published before launch rather than invented after liquidity exists.</p>
+
+        <div class="callout">
+          <span class="callout-label">official channels</span>
+          X: <a href="https://x.com/rammonhood" target="_blank" rel="noopener">@rammonhood</a> · launch venue: <a href="https://www.ponslaunchpad.com/" target="_blank" rel="noopener">Pons</a> · contract: TBA
+        </div>
+
+        <h2>What Rammo is not</h2>
+        <p>Rammo is not an insurance promise, not a guarantee that software cannot fail, and not an autonomous administrator with permission to rewrite other protocols. It is infrastructure for producing better evidence, safer repairs and a durable security memory. Each integrated protocol retains control over whether and how it adopts a defense.</p>
+      </div>
+    </section>
+
+    <section class="page" data-page="mind">
+      <div class="topbar">threat observatory · simulated</div>
+      <h1>This is what Rammo is watching</h1>
+      <p class="subtitle">A concept interface for the risk surfaces the protocol will inspect. Values below are simulations, not live network telemetry.</p>
+      <div class="two-col">
+        <div class="card"><div class="card-head"><div><div class="card-title">permission surface</div><div class="card-meta">role and upgrade paths</div></div><div class="card-meta">watching</div></div><div class="metric-value" style="padding-top:2rem;">12 <span style="font-size:12px;color:var(--text-3)">roles mapped</span></div></div>
+        <div class="card"><div class="card-head"><div><div class="card-title">oracle freshness</div><div class="card-meta">heartbeat and deviation</div></div><div class="card-meta">nominal</div></div><div class="metric-value" style="padding-top:2rem;">0.8s <span style="font-size:12px;color:var(--text-3)">sample lag</span></div></div>
+        <div class="card"><div class="card-head"><div><div class="card-title">composition depth</div><div class="card-meta">asset → vault → market</div></div><div class="card-meta">mapped</div></div><div class="metric-value" style="padding-top:2rem;">4 <span style="font-size:12px;color:var(--text-3)">hops</span></div></div>
+        <div class="card"><div class="card-head"><div><div class="card-title">mutation coverage</div><div class="card-meta">adversarial test paths</div></div><div class="card-meta">simulated</div></div><div class="metric-value" style="padding-top:2rem;">96.4%</div></div>
+      </div>
+      <div class="callout" style="margin-top:1rem;"><span class="callout-label">observer stream</span><code>SCAN permissions → TRACE composition → FORK state → PROBE exploit → PROVE repair → ROOT memory</code></div>      <div class="prose">
+        <h2>Four surfaces, one graph</h2>
+        <p><strong>Contract risk</strong> includes unsafe permissions, upgrade boundaries, re-entrancy, accounting precision and assumptions that stop being true after integration. <strong>Oracle risk</strong> includes stale updates, excessive deviation, broken decimals and price sources that behave correctly alone but incorrectly inside a liquidation path.</p>
+        <p><strong>Liquidity risk</strong> appears when thin markets, concentrated positions or abrupt imbalance turn ordinary actions into manipulation tools. <strong>Composition risk</strong> appears between protocols: an asset accepted by a vault becomes collateral elsewhere, which becomes liquidity somewhere else. Rammo maps the path rather than inspecting each box in isolation.</p>
+        <h2>Signals are not verdicts</h2>
+        <p>The observatory separates detection from proof. A deviation alert is a reason to create a fork, not a public accusation. Findings advance only when a deterministic state and transaction sequence reproduce the behavior. This reduces false alarms and gives affected builders something concrete to fix.</p>
+        <div class="callout"><span class="callout-label">status</span>The dashboard is currently a design specification. Displayed values are simulated until the observer and registry contracts are deployed.</div>
+      </div>
+    </section>
+
+    <section class="page" data-page="theorem">
+      <div class="topbar">foundations · the white-hat model</div>
+      <h1>Security must be able to learn</h1>
+      <p class="subtitle">Rammo is built on five ideas: white hats, forks, roots, vulnerabilities and controlled evolution.</p>
+      <div class="prose">
+        <h2>White hat</h2><p>Rammo searches for ways systems can fail, but it does so to make failure reproducible, repairable and economically rewarded. Discovery without extraction is the first invariant.</p>
+        <h2>Fork</h2><p>Production state is copied into isolation. Attacks and repairs are tested against the copy, never against users. The fork turns a dangerous hypothesis into safe evidence.</p>
+        <h2>Root</h2><p>Every accepted finding connects its state snapshot, exploit proof, repair and attestations into one public root. Root means both the deepest cause and the verifiable origin of the fix.</p>
+        <h2>Vulnerability</h2><p>A vulnerability is not content to be buried in a report. It is raw material for a reusable defense. Responsible disclosure protects the affected protocol while the final record protects everyone else.</p>
+        <h2>Self-evolution</h2><p>Rammo never silently rewrites third-party contracts. It publishes versioned, opt-in defensive modules whose ancestry and tests remain inspectable. Evolution is constrained by proof.</p>
+        <pre class="code" style="padding:1.5rem;text-align:center;">risk + fork + proof + repair + memory = immunity</pre>
+      </div>      <div class="prose">
+        <h2>The ethics boundary</h2>
+        <p>Adversarial capability without a disclosure boundary becomes extraction. Rammo's intended workflow separates researchers who submit private evidence from the public registry that appears after mitigation. Sensitive reproduction details can remain sealed while funds are exposed, with hashes anchoring what was known and when.</p>
+        <h2>Why a fork matters</h2>
+        <p>A deterministic fork gives every party the same laboratory. The affected builder, the researcher and an independent verifier can replay identical state and compare outcomes instead of debating screenshots. The fork is where claims become tests.</p>
+        <h2>Why roots matter</h2>
+        <p>A Root is more than a vulnerability ID. It binds the state snapshot, affected surface, proof hash, disclosure timeline, candidate repair, regression suite and attestations. Future agents can query that memory before repeating an old mistake in a new contract.</p>
+        <h2>Why evolution stays constrained</h2>
+        <p>Self-improvement is useful only when regression can be detected. Each generation therefore inherits explicit invariants and a public parent. A new module that improves one defense but breaks an earlier invariant does not represent evolution; it is rejected mutation.</p>
+      </div>
+    </section>
+
+    <section class="page" data-page="surprises">
+      <div class="topbar">root registry · public memory</div>
+      <h1>Every verified lesson, anchored</h1>
+      <p class="subtitle">Illustrative genesis records. The onchain registry begins only when the protocol is deployed.</p>
+      <div class="card">
+        <div class="card-head"><div class="card-title">root records</div><div class="card-meta">concept data · not live</div></div>
+        <div style="font-family:var(--mono);font-size:11px;">
+          <div style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr;padding:12px 0;border-bottom:1px solid var(--border);color:var(--text-3);"><span>ROOT</span><span>FINDING</span><span>SEVERITY</span><span>STATE</span></div>
+          <div style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr;padding:16px 0;border-bottom:1px solid var(--border);"><span>ROOT-0004</span><span>oracle freshness invariant</span><span style="color:var(--danger)">high</span><span style="color:var(--success)">verified</span></div>
+          <div style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr;padding:16px 0;border-bottom:1px solid var(--border);"><span>ROOT-0003</span><span>cross-vault re-entry boundary</span><span style="color:var(--info-text)">medium</span><span style="color:var(--success)">verified</span></div>
+          <div style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr;padding:16px 0;"><span>ROOT-0002</span><span>role revocation coverage</span><span>low</span><span style="color:var(--success)">verified</span></div>
+        </div>
+      </div>
+      <div class="prose"><h2>Nothing is deleted</h2><p>Rejected fixes, failed tests and superseded modules stay linked to the lineage. The registry is not a victory feed. It is a memory of what broke, what worked and who verified the difference.</p></div>      <div class="prose">
+        <h2>Anatomy of a Root</h2>
+        <p>Each record is designed to answer seven questions: which state was tested, what invariant failed, how the failure was reproduced, when the affected party was notified, what repair was proposed, which tests the repair survived, and who independently attested the result.</p>
+        <p>Public records use content hashes so large traces and test suites can live offchain without losing integrity. The onchain Root remains the compact verification point connecting every artifact.</p>
+        <h2>Responsible disclosure states</h2>
+        <p><strong>Observed</strong> means a signal exists. <strong>Reproduced</strong> means the behavior survives a deterministic replay. <strong>Disclosed</strong> means the affected builder has received the evidence. <strong>Repaired</strong> means a candidate fix passed its declared suite. <strong>Verified</strong> means independent reproduction agrees. Only then does the record become reusable immunity.</p>
+        <div class="callout"><span class="callout-label">privacy before publication</span>A public Root must never become a countdown clock for an unpatched exploit. Disclosure timing is part of the security model.</div>
+      </div>
+    </section>
+
+    <section class="page" data-page="selfcorrect">
+      <div class="topbar">proof of repair · fork lab</div>
+      <h1>Break the copy. Protect the original.</h1>
+      <p class="subtitle">A patch must stop the adversarial path without breaking valid market behavior.</p>
+      <div class="two-col">
+        <div class="card"><div class="card-head"><div class="card-title">original state</div><div class="card-meta" style="color:var(--danger)">exposed</div></div><div class="metric-value">184</div><div class="metric-label">failed mutation paths</div></div>
+        <div class="card"><div class="card-head"><div class="card-title">mutated state</div><div class="card-meta" style="color:var(--success)">hardened</div></div><div class="metric-value">0</div><div class="metric-label">failed mutation paths</div></div>
+      </div>
+      <div class="card" style="margin-top:1rem;"><div class="card-head"><div class="card-title">simulation console</div><div class="card-meta">isolated · no live funds</div></div><select id="threat-select" style="width:100%;margin:1rem 0;padding:10px;background:var(--surface-2);color:var(--text);border:1px solid var(--border);"><option>Oracle heartbeat drift</option><option>Re-entrancy path</option><option>Unsafe upgrade authority</option><option>Liquidity manipulation</option></select><button id="simulate" style="padding:9px 14px;background:var(--success);color:var(--bg);border:0;border-radius:5px;cursor:pointer;">fork & simulate</button><code id="sim-status" style="margin-left:12px;color:var(--text-3);font:11px var(--mono);">ready</code></div>
+      <div class="prose"><h2>Proof before adoption</h2><p>Repairs are versioned and opt-in. Rammo can propose and verify a defense; adoption remains subject to each protocol's own permissions and governance.</p></div>      <div class="prose">
+        <h2>The repair gauntlet</h2>
+        <p>The first test replays the original exploit. The second mutates calldata, timing, balances, actors and integration order. The third runs valid user behavior against the candidate defense to detect collateral damage. The fourth checks every inherited invariant from earlier generations.</p>
+        <p>Passing once is not enough. A repair earns confidence through repeatability: same pinned state, same input set, same result. The proof package records compiler version, contract bytecode, fork block, test seeds and expected outputs so another researcher can challenge it.</p>
+        <h2>Human override is a feature</h2>
+        <p>Automation shortens the distance between signal and candidate repair. Humans retain the right to reject assumptions, widen the test boundary and stop publication. In financial infrastructure, a cautious pause is not failure; it is part of the protocol.</p>
+        <h2>Integration modes</h2>
+        <p>Projects may use Rammo as an external observer, adopt a monitoring adapter, subscribe to published defensive modules, or incorporate Root tests into deployment pipelines. No integration requires handing Rammo custody of user assets.</p>
+      </div>
+    </section>
+
+    <section class="page" data-page="deployment">
+      <div class="topbar">deployment · robinhood chain</div>
+      <h1>Where Rammo is designed to run</h1>
+      <p class="subtitle">An EVM-compatible execution environment for tokenized financial assets and open DeFi composition.</p>
+      <div class="two-col">
+        <div class="card"><div class="card-head"><div class="card-title">network</div><div class="card-meta">mainnet</div></div><div class="metric-value" style="font-size:20px;padding-top:1rem;">Robinhood Chain</div></div>
+        <div class="card"><div class="card-head"><div class="card-title">chain id</div><div class="card-meta">EVM</div></div><div class="metric-value" style="padding-top:1rem;">4663</div></div>
+        <div class="card"><div class="card-head"><div class="card-title">native gas</div><div class="card-meta">settlement</div></div><div class="metric-value" style="padding-top:1rem;">ETH</div></div>
+        <div class="card"><div class="card-head"><div class="card-title">contract</div><div class="card-meta">not deployed</div></div><div class="metric-value" style="font-size:20px;padding-top:1rem;">TBA</div></div>
+      </div>
+      <div class="prose"><h2>The call path</h2><pre class="code">Robinhood Chain state
+        ↓
+Watcher Network
+        ↓
+Deterministic Fork Lab
+        ↓
+Proof of Exploit → Proof of Repair
+        ↓
+Root Registry → opt-in Mutation Module</pre>
+      <p>Rammo is an independent ecosystem project. It is not Robinhood, and no affiliation or endorsement is implied.</p></div>      <div class="prose">
+        <h2>Planned Pons launch</h2>
+        <p>$RAMMO is planned to originate through <a href="https://www.ponslaunchpad.com/" target="_blank" rel="noopener"><strong>Pons</strong></a>, a launch and trading venue for fixed-supply tokens on Robinhood Chain. Pons transactions are submitted through the user's own wallet; Pons does not custody those assets.</p>
+        <p>The launch page and contract address will be published through <a href="https://x.com/rammonhood" target="_blank" rel="noopener">@rammonhood</a> when ready. Until that announcement, any token using the name or ticker is unrelated. The CA banner will remain TBA rather than displaying a placeholder address.</p>
+        <h2>Launch sequence</h2>
+        <pre class="code">01 · publish final token parameters
+02 · publish Pons launch link through @rammonhood
+03 · launch $RAMMO on Robinhood Chain
+04 · update the canonical CA banner
+05 · verify explorer and Pons links
+06 · begin Root Registry genesis phase</pre>
+        <h2>What launch does—and does not—mean</h2>
+        <p>The token launch establishes a public coordination asset and community. It does not mean every described protocol component is already deployed. Website status labels will distinguish narrative, simulation, testnet and mainnet components.</p>
+      </div>
+    </section>
+
+    <section class="page" data-page="source">
+      <div class="topbar">protocol specification · concept</div>
+      <h1>The system beneath the narrative</h1>
+      <p class="subtitle">The production contracts have not been deployed. This is the intended modular boundary, not a claim of finished code.</p>
+      <pre class="code"><span class="c">// risk-adaptive market maintenance operator</span>
+
+interface IRammoRoot {
+    function submitFinding(bytes32 stateRoot, bytes32 proofHash) external;
+    function attestRepair(bytes32 findingId, bytes32 repairHash) external;
+    function publishModule(bytes32 repairHash, address module) external;
+}
+
+<span class="c">// invariants</span>
+<span class="k">discovery</span> does not authorize extraction
+<span class="k">simulation</span> does not touch live funds
+<span class="k">repair</span> requires replayable evidence
+<span class="k">adoption</span> remains opt-in
+<span class="k">lineage</span> remains public</pre>
+      <div class="prose"><h2>Agents propose. Proof constrains.</h2><p>Autonomous agents can observe, mutate and generate candidate defenses. They cannot convert confidence into authority. Reproducible state, explicit invariants and independent attestations form the trust boundary.</p></div>      <div class="prose">
+        <h2>Watcher Network</h2>
+        <p>Watchers transform raw chain activity into bounded hypotheses. They index contract changes, role events, oracle heartbeats, pool conditions and cross-protocol calls. Multiple watchers may disagree; the fork decides whether a claim is reproducible.</p>
+        <h2>Fork Coordinator</h2>
+        <p>The coordinator pins block, chain configuration, relevant bytecode and storage. It packages the environment so researchers can replay the same path locally or through shared compute without touching production funds.</p>
+        <h2>Proof Engine</h2>
+        <p>The engine evaluates exploit reproduction and repair invariants. It records deterministic artifacts rather than asking users to trust an opaque AI score. Agent reasoning may guide test generation, but proof outputs must remain inspectable.</p>
+        <h2>Mutation Library</h2>
+        <p>Verified defenses become reusable patterns: oracle freshness guards, permission constraints, re-entry boundaries, rate limits and invariant monitors. Modules are versioned building blocks, not universal patches.</p>
+        <h2>Bounty coordination</h2>
+        <p>The intended system rewards distinct work: observation, reproduction, repair and independent verification. Separating these roles makes collusion more visible and gives careful reviewers value equal to fast discovery.</p>
+      </div>
+    </section>
+
+    <section class="page" data-page="handoff">
+      <div class="topbar">evolution · version lineage</div>
+      <h1>No lesson gets deleted</h1>
+      <p class="subtitle">Each generation inherits a public relationship to what came before.</p>
+      <div class="two-col">
+        <div class="card"><div class="card-head"><div class="card-title">gen · 00</div><div class="card-meta">genesis</div></div><h2>Observer</h2><p>Maps contracts, privileges, assets and feeds.</p></div>
+        <div class="card"><div class="card-head"><div class="card-title">gen · 01</div><div class="card-meta">state fork</div></div><h2>Forker</h2><p>Reconstructs production state inside isolation.</p></div>
+        <div class="card"><div class="card-head"><div class="card-title">gen · 02</div><div class="card-meta">proof engine</div></div><h2>Prover</h2><p>Turns adversarial behavior into replayable repair tests.</p></div>
+        <div class="card"><div class="card-head"><div class="card-title">gen · 03</div><div class="card-meta">concept phase</div></div><h2>Immune</h2><p>Packages verified defenses as reusable modules.</p></div>
+      </div>
+      <div class="prose"><div class="callout"><span class="callout-label">rammo</span>Risk-Adaptive Market Maintenance Operator.</div><h2>The doctrine</h2><p><strong>Wild by design. White-hat by principle.</strong> Built to break things before they break the market. Every exploit becomes evidence. Every repair becomes memory. Every memory makes the next market harder to kill.</p></div>      <div class="prose">
+        <h2>Genesis → organism</h2>
+        <p><strong>Genesis</strong> establishes public definitions, threat categories and disclosure rules. <strong>Observer</strong> adds chain indexing and anomaly hypotheses. <strong>Forker</strong> makes state replay deterministic. <strong>Prover</strong> standardizes exploit and repair evidence. <strong>Immune</strong> turns verified lessons into reusable modules.</p>
+        <h2>A roadmap measured by proof</h2>
+        <p>Rammo generations are not calendar promises. A generation advances when its public acceptance criteria are met. The website will link each milestone to code, deployments and Root records rather than replacing evidence with announcements.</p>
+        <h2>Community role</h2>
+        <p>The community is not asked to pretend every technical question is a popularity contest. It helps set bounty priorities, surface integrations, fund investigation and choose which public goods matter most. Security claims remain answerable to reproducible tests.</p>
+        <h2>The long-term memory</h2>
+        <p>The end state is an immune graph for Robinhood Chain: a searchable relationship between assets, protocols, failed invariants, verified repairs and the generations that inherited them. Every new builder should be able to begin with the lessons paid for by everyone before them.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+document.querySelectorAll('[data-nav]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var target=a.getAttribute('data-nav');document.querySelectorAll('.page').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-page')===target)});document.querySelectorAll('[data-nav]').forEach(function(n){n.classList.toggle('active',n.getAttribute('data-nav')===target)});window.scrollTo({top:0,behavior:'instant'})})});
+var sim=document.getElementById('simulate');if(sim){sim.addEventListener('click',function(){var status=document.getElementById('sim-status');sim.disabled=true;status.textContent='forking state · running 10,000 mutations…';setTimeout(function(){status.textContent='verified · repair survived';status.style.color='var(--success)';sim.disabled=false},1200)})}
+</script>
+</body>
+</html>
+
+
+
+
