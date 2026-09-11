@@ -49,41 +49,6 @@
     font-size: 13px;
     padding: 8px 1rem;
   }
-  .ca-banner {
-    background: var(--success-bg);
-    border-bottom: 0.5px solid var(--success);
-    color: var(--success);
-    text-align: center;
-    font-size: 13px;
-    padding: 10px 1rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .ca-banner .ca-label { color: var(--success); font-weight: 500; }
-  .ca-banner code {
-    font-family: var(--mono);
-    font-size: 12px;
-    background: rgba(0,0,0,0.25);
-    padding: 3px 8px;
-    border-radius: 3px;
-    word-break: break-all;
-    color: var(--text);
-  }
-  .ca-banner button {
-    background: transparent;
-    border: 0.5px solid var(--success);
-    color: var(--success);
-    font-family: var(--mono);
-    font-size: 11px;
-    padding: 3px 10px;
-    cursor: pointer;
-    border-radius: 3px;
-  }
-  .ca-banner button:hover { background: var(--success); color: var(--bg); }
-
   .layout {
     display: grid;
     grid-template-columns: 220px minmax(0, 1fr);
@@ -401,16 +366,10 @@
 </style>
 <style>
 :root{--success:#b7f34a;--success-bg:rgba(183,243,74,.10);--info-text:#b7f34a;--info-border:rgba(183,243,74,.28);--info-bg:rgba(183,243,74,.06)}
-.logo-img{border-radius:6px}.ca-banner{background:#10170d}.rammo-loop .metric{display:flex;flex-direction:column;align-items:flex-start;gap:7px}.rammo-loop .metric-value{padding:0}
+.logo-img{border-radius:6px}.rammo-loop .metric{display:flex;flex-direction:column;align-items:flex-start;gap:7px}.rammo-loop .metric-value{padding:0}
 @media(max-width:900px){.rammo-loop{grid-template-columns:repeat(2,1fr)!important}}
 </style></head>
 <body>
-
-<div class="ca-banner">
-  <span class="ca-label">$RAMMO contract (Robinhood Chain):</span>
-  <code id="ca-code">0x27bF35BcBB5986629C449D6C7047Fc748AF38102</code>
-</div>
-
 
 <div class="layout">
 
@@ -494,7 +453,7 @@
         <p>A proposed repair must do two things at once: block the adversarial path and preserve valid market behavior. Only after both conditions survive repeated mutation tests can the repair be attached to a Root record and published as an opt-in defense.</p>
 
         <h2>The token</h2>
-        <p><strong>$RAMMO is planned to launch on Pons on Robinhood Chain.</strong> Before launch, the contract address remains TBA. The address shown in the banner above and the project's X account are the canonical places to verify it when it exists. Names and tickers can be copied; the address is the identity.</p>
+        <p><strong>$RAMMO is planned to launch on Pons on Robinhood Chain.</strong> Final launch details will be published through the project's X account when ready.</p>
         <p>The token is intended to coordinate the people and agents that make the immunity loop useful: observers who surface risk, researchers who reproduce it, builders who repair it, and independent reviewers who verify the result. Final mechanics will be published before launch rather than invented after liquidity exists.</p>
 
         <div class="callout">
@@ -615,14 +574,13 @@ Root Registry → opt-in Mutation Module</pre>
       <p>Rammo is an independent ecosystem project. It is not Robinhood, and no affiliation or endorsement is implied.</p></div>      <div class="prose">
         <h2>Planned Pons launch</h2>
         <p>$RAMMO is planned to originate through <a href="https://www.ponslaunchpad.com/" target="_blank" rel="noopener"><strong>Pons</strong></a>, a launch and trading venue for fixed-supply tokens on Robinhood Chain. Pons transactions are submitted through the user's own wallet; Pons does not custody those assets.</p>
-        <p>The launch page and contract address will be published through <a href="https://x.com/rammonhood" target="_blank" rel="noopener">@rammonhood</a> when ready. Until that announcement, any token using the name or ticker is unrelated. The CA banner will remain TBA rather than displaying a placeholder address.</p>
+        <p>The launch page and final token details will be published through <a href="https://x.com/rammonhood" target="_blank" rel="noopener">@rammonhood</a> when ready. Until that announcement, any token using the name or ticker is unrelated.</p>
         <h2>Launch sequence</h2>
         <pre class="code">01 · publish final token parameters
 02 · publish Pons launch link through @rammonhood
 03 · launch $RAMMO on Robinhood Chain
-04 · update the canonical CA banner
-05 · verify explorer and Pons links
-06 · begin Root Registry genesis phase</pre>
+04 · verify explorer and Pons links
+05 · begin Root Registry genesis phase</pre>
         <h2>What launch does—and does not—mean</h2>
         <p>The token launch establishes a public coordination asset and community. It does not mean every described protocol component is already deployed. Website status labels will distinguish narrative, simulation, testnet and mainnet components.</p>
       </div>
